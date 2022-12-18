@@ -10,31 +10,59 @@ setwd("~/Desktop/Master/InfoMedica/RepoIFB")
 table_raw<-readxl::read_excel("NASH factores and odds ratio.xlsx",col_names = TRUE)
 names = unique(table_raw$Environmental_Factor)
 
-pop = 1000
+pop = 100000
 ID <- 1:pop
 DF <- data.frame(ID)
 vector_betas <- data.frame(ID)
 
+
+
 for (element in names){
-  P <- table_raw %>%
-    filter(Environmental_Factor == element)%>%
-    select(pop_percentage, Cat, Betas)
+  if (element == "AGE"){
+    P <- table_raw %>%
+      filter(Environmental_Factor == element)%>%
+      select(pop_percentage, Cat, Betas)
+    age = c(15,40,60)
+    coef = coef(lm(Betas~age, P))
     
-  factor=sample(as.factor(P$Cat), pop, P$pop_percentage, replace=TRUE)
+    #Inserting the personal beta depending on age
+    AGE = rnorm(1000, mean=50, sd=15)
+    AGE <- abs(round(AGE,0))
+    #Liniar model
+    betas <- AGE*coef[2]+coef[1]
+    #For insertion in the DF
+    factor <- AGE
+  }
   
+  else{
+    P <- table_raw %>%
+      filter(Environmental_Factor == element)%>%
+      select(pop_percentage, Cat, Betas)
+    factor=sample(as.factor(P$Cat), pop, P$pop_percentage, replace=TRUE)
+    
+    #From factor to the associated betas
+    betas <- factor
+    levels(betas)<- P$Betas
+  }
   
-  DF <-DF%>%
-    cbind(factor)
-  betas <- factor
-  levels(betas)<- P$Betas
-  vector_betas <- vector_betas%>%
-    cbind(as.numeric(paste(betas)))
+  #Dataframe of factors
+  DF = cbind(DF,factor)
+  #Dataframe of betas associated to factors and patients
+  vector_betas <- cbind(vector_betas, as.numeric(paste(betas)))
 }
 
+#Inspecting the elements
+View(vector_betas)
+View(DF)
 
+#Inserting names
 names(DF)= c("ID",names)
 names(vector_betas)= c("ID",names)
 vector_betas = tibble(vector_betas)
+
+
+
+
 beta<- rowSums(vector_betas)-as.numeric(vector_betas$ID)
 
 # We have to assign the RHS to an object to save the column to the object.
@@ -79,10 +107,8 @@ p+geom_histogram(binwidth=0.2)
 p+geom_density()
 
 #setting an age variable
-AGE = rnorm(1000, mean=50, sd=15)
-hist(AGE)
-AGE <- abs(round(AGE,0))
-DF2 <- cbind(DF2,AGE)
+
+
 summary(DF2)
 
 #Computing the illnes or not with normalised betas to mean = 0.
@@ -94,8 +120,8 @@ for (element in Podds2){
   
   Y2 = c(Y2,a)
 }
-
-DF2 <- cbind(DF2,as.factor(Y2))
+Y = as.factor(Y2)
+DF2 <- cbind(DF2,Y)
 
 #Fixemnos que les proporcions de malalts i no malalts no són 50 i 50, sino mes aviat 43 i 57, perque? 
 #Extreient-li la mediana passa semblant
@@ -104,5 +130,5 @@ DF2 <- cbind(DF2,as.factor(Y2))
 #(mutate) a partir de la columna edat i els valors a i b (taula).
 #Per altre banda s'ha de crear una columna d'edat amb una distribució normal
 
-
+View(DF2)
 
