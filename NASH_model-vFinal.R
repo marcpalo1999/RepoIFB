@@ -168,16 +168,19 @@ DF2 <- cbind(DF2,Y)
 #Trobar el 30% de 15 numeros
 #The number of actual variables is 15
 n=round(15*0.3,0) #We wil take down the 30%
-down_vector <- sample(1:14, size = n)
+down_vector <- sample(2:14, size = n)
 
 DF_down <-  subset(DF2, select = -down_vector )
 # Different method same output -- DF2 <- DF2[, -down_vector]
-var_reord <- sample(1:(length(colnames(DF_down))-1), size = (length(colnames(DF_down))-1))
+var_reord <- sample(2:(length(colnames(DF_down))-1), size = (length(colnames(DF_down))-2))
 
-var_reord <- c(0,var_reord, length(var_reord)+1)
-Final_DF <- subset(DF2, select = var_reord )
+var_reord2 <- c(1,var_reord, length(DF2))
+Final_DF <- subset(DF2, select = var_reord2 )
 
 View(Final_DF)
 summary(Final_DF)
 
-readxl::save_excel()
+
+library("writexl")
+write_xlsx(Final_DF,"Final_DF.xlsx")
+
