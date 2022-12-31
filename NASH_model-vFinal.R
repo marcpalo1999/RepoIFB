@@ -174,8 +174,8 @@ DF_down <-  subset(DF2, select = -down_vector )
 # Different method same output -- DF2 <- DF2[, -down_vector]
 var_reord <- sample(2:(length(colnames(DF_down))-1), size = (length(colnames(DF_down))-2))
 
-var_reord2 <- c(1,var_reord, length(DF2))
-Final_DF <- subset(DF2, select = var_reord2 )
+var_reord2 <- c(1,var_reord, length(DF_down))
+Final_DF <- subset(DF_down, select = var_reord2 )
 
 View(Final_DF)
 summary(Final_DF)
